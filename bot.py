@@ -11,6 +11,17 @@ bot = commands.Bot(command_prefix='.', intents=config.intents)
 bot.remove_command('help')
 
 @bot.event
+async def on_guild_join(guild):
+    category_name = config.CATEGORY_NAME
+    category = discord.utils.get(guild.categories, name=category_name)
+    if category is None:
+        category = await guild.create_category(category_name)
+        print(f'Category "{category_name}" created in guild "{guild.name}".')
+    else:
+        print(f'Category "{category_name}" already exists in guild "{guild.name}".')
+
+
+@bot.event
 async def on_ready():
     print(f'Logged in as {bot.user.name} ({bot.user.id})')
     print('------')
@@ -18,6 +29,7 @@ async def on_ready():
     #this is just so if you change a command in the cogs folder it will automatically reload it
     watcher = Watcher(bot, path='cogs', preload=True, debug=False)
     await watcher.start()
+
 
 async def load():
     #load py files in cogs folder

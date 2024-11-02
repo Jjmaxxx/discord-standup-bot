@@ -6,13 +6,16 @@ class roles_commands(commands.Cog):
         self.bot = bot
 
     async def createRoleChannel(self, ctx,guild,role):
+        category_name = config.CATEGORY_NAME 
+        category = discord.utils.get(guild.categories, name=category_name)
+
         overwrites = {
             guild.default_role: discord.PermissionOverwrite(read_messages = False),
             role: discord.PermissionOverwrite(read_messages = True)
         }
-        channelName = role.name
-        channel = await guild.create_text_channel(channelName, overwrites=overwrites)
-        await ctx.send(f'"{role.name}" channel has been created.')
+        channel_name = role.name
+        channel = await guild.create_text_channel(channel_name, overwrites=overwrites, category=category)
+        await ctx.send(f'"{role.name}" channel has been created')
         
     @commands.command()
     async def createRole(self, ctx, roleName: str):

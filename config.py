@@ -11,3 +11,4 @@ intents.message_content = True
 
 
 GROUP_PREFIX= "standup-bot-group-"
+CATEGORY_NAME = "standup-bot-groups"
