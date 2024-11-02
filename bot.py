@@ -6,7 +6,7 @@ from discord.ext import commands
 from cogwatch import Watcher
 
 # Set up the bot with a command prefix
-bot = commands.Bot(command_prefix='#', intents=config.intents)
+bot = commands.Bot(command_prefix='.', intents=config.intents)
 bot.remove_command('help')
 
 @bot.event
