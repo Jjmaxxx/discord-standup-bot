@@ -9,3 +9,5 @@ intents = discord.Intents.default()
 intents.messages = True
 intents.message_content = True
 
+
+GROUP_PREFIX= "standup-bot-group-"
