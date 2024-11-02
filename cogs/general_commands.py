@@ -20,6 +20,21 @@ class general_commands(commands.Cog):
         role = await guild.create_role(name = roleName)
         await ctx.send(f'"{roleName}" has been created.')
 
+        await self.createRoleChannel(ctx, role)
+
+    async def createRoleChannel(ctx, role: discord.Role):
+        guild = ctx.guild
+
+        overwrites = {
+            guild.default_role: discord.PermissionOverwrite(read_messages = False),
+            role: discord.PermissionOverwrite(read_messages = True)
+        }
+
+        print("hello")
+        channelName = f'standup-bot-group-{role.name}'
+        channel = await guild.create_text_channel(channelName, overwrites=overwrites)
+        await ctx.send(f'"{role.name}" channel has been created.')
+
     @commands.command()
     async def help(self, ctx):
         message = """
