@@ -20,7 +20,6 @@ async def on_guild_join(guild):
     else:
         print(f'Category "{category_name}" already exists in guild "{guild.name}".')
 
-
 @bot.event
 async def on_ready():
     print(f'Logged in as {bot.user.name} ({bot.user.id})')
@@ -29,7 +28,6 @@ async def on_ready():
     #this is just so if you change a command in the cogs folder it will automatically reload it
     watcher = Watcher(bot, path='cogs', preload=True, debug=False)
     await watcher.start()
-
 
 async def load():
     #load py files in cogs folder

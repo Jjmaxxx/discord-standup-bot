@@ -57,7 +57,7 @@ class roles_commands(commands.Cog):
         matching_roles = [role for role in guild.roles if role.name.startswith(config.GROUP_PREFIX)]
         if matching_roles:
             message = "\n".join(role.name[len(config.GROUP_PREFIX):] for role in matching_roles)
-            message2 = "Success!"
+            message2 = "Here Are The Existing Roles:"
         else:
             message = "No roles found starting with the specified prefix."
             message2 = "Sorry!"
