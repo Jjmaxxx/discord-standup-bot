@@ -26,7 +26,6 @@ async def on_ready():
     print('------')
 
     #synced_commands = await bot.tree.sync()
-
     #this is just so if you change a command in the cogs folder it will automatically reload it
     watcher = Watcher(bot, path = 'cogs', preload = True, debug = False)
     await watcher.start()
