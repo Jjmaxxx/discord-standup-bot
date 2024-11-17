@@ -1,6 +1,8 @@
 import discord
 from discord.ext import commands
 import config
+import sqlite3
+
 class roles_commands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -32,7 +34,7 @@ class roles_commands(commands.Cog):
         #     await ctx.send("You need to include a role name.")
         
         #Run check to see if the role name has already been used
-        if discord.utils.get(guild.roles, name = roleName):
+        if discord.utils.get(guild.roles, name = f"{config.GROUP_PREFIX}{roleName}"):
             embed = discord.Embed(
                 color = discord.Color.blurple(),
                 title = "Sorry!",
@@ -52,11 +54,23 @@ class roles_commands(commands.Cog):
         embed.set_thumbnail(url = "https://seeklogo.com/images/S/san-jose-state-spartans-logo-E3E560A879-seeklogo.com.png")
         await ctx.send(embed = embed)
         await self.createRoleChannel(ctx, guild, role)
-    
+        #print("It gets to here")
+        conn = sqlite3.connect("standupbot.db")
+        cursor = conn.cursor()
+
+        cursor.execute('''
+        INSERT INTO groups (group_name, server_id)
+        VALUES (?, ?);
+        ''', (role.name, role.guild.id))
+
+        conn.commit()
+        conn.close()
+        #print("It also gets to here")
+
     @commands.command()
     async def deleteRole(self, ctx, roleName: str):
         guild = ctx.guild
-        role = discord.utils.get(guild.roles, name = roleName)
+        role = discord.utils.get(guild.roles, name = f"{config.GROUP_PREFIX}{roleName}")
         channel = discord.utils.get(guild.text_channels, name = role.name)
         if ctx.author.top_role <= role:
             title = "Sorry!"
@@ -119,8 +133,6 @@ class roles_commands(commands.Cog):
 
         embed.set_thumbnail(url = "https://seeklogo.com/images/S/san-jose-state-spartans-logo-E3E560A879-seeklogo.com.png")
         await ctx.send(embed = embed)
-
-        
 
 async def setup(bot):
     await bot.add_cog(roles_commands(bot))
