@@ -10,6 +10,7 @@ from cogwatch import Watcher
 bot = commands.Bot(command_prefix = '.', intents = discord.Intents.all())
 bot.remove_command('help')
 
+# When the bot joins a server, create a channel category for groups to be placed
 @bot.event
 async def on_guild_join(guild):
     category_name = config.CATEGORY_NAME
@@ -25,13 +26,12 @@ async def on_ready():
     print(f'Logged in as {bot.user.name} ({bot.user.id})')
     print('------')
 
-    #synced_commands = await bot.tree.sync()
-    #this is just so if you change a command in the cogs folder it will automatically reload it
+    # This is just so if you change a command in the cogs folder it will automatically reload it
     watcher = Watcher(bot, path = 'cogs', preload = True, debug = False)
     await watcher.start()
 
 async def load():
-    #load py files in cogs folder
+    # Load py files in cogs folder
     for filename in os.listdir("./cogs"):
         if filename.endswith('.py'):
             await bot.load_extension(f'cogs.{filename[:-3]}')
@@ -41,5 +41,5 @@ async def main():
     # Run the bot
     await bot.start(config.TOKEN)
 
-#asyncio.run just allows you to run async functions in python
+# asyncio.run just allows you to run async functions in python
 asyncio.run(main())

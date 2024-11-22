@@ -28,7 +28,6 @@ class daily_reminder(commands.Cog):
 
     @tasks.loop(hours = 24)
     async def daily_checkIn(self):
-        #roles = []
         for guild in self.bot.guilds:
             print(f"checking role in guild: {guild.name}")
             roles = [role for role in guild.roles if role.name.startswith(config.GROUP_PREFIX)]

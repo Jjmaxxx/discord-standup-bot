@@ -7,10 +7,12 @@ class roles_commands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    # When a role is created, this command will create a corresponding channel
     async def createRoleChannel(self, ctx, guild, role):
         category_name = config.CATEGORY_NAME 
         category = discord.utils.get(guild.categories, name = category_name)
 
+        # Ensures that only people within a role/group can read their channels messages
         overwrites = {
             guild.default_role: discord.PermissionOverwrite(read_messages = False),
             role: discord.PermissionOverwrite(read_messages = True)
@@ -26,14 +28,13 @@ class roles_commands(commands.Cog):
         )
         embed.set_thumbnail(url = "https://seeklogo.com/images/S/san-jose-state-spartans-logo-E3E560A879-seeklogo.com.png")
         await ctx.send(embed = embed)
-        
+    
+    # This command will create a role for users to join
     @commands.command()
-    async def createRole(self, ctx, roleName: str):
+    async def create(self, ctx, roleName: str):
         guild = ctx.guild
-        # if len(roleName) < 1:
-        #     await ctx.send("You need to include a role name.")
-        
-        #Run check to see if the role name has already been used
+
+        # Run check to see if the role name has already been used
         if discord.utils.get(guild.roles, name = f"{config.GROUP_PREFIX}{roleName}"):
             embed = discord.Embed(
                 color = discord.Color.blurple(),
@@ -44,7 +45,7 @@ class roles_commands(commands.Cog):
             await ctx.send(embed = embed)
             return
         
-        #If the name has not been used, create the role
+        # If the name has not been used, create the role
         role = await guild.create_role(name = f"{config.GROUP_PREFIX}{roleName}")
         embed = discord.Embed(
             color = discord.Color.blurple(),
@@ -54,7 +55,8 @@ class roles_commands(commands.Cog):
         embed.set_thumbnail(url = "https://seeklogo.com/images/S/san-jose-state-spartans-logo-E3E560A879-seeklogo.com.png")
         await ctx.send(embed = embed)
         await self.createRoleChannel(ctx, guild, role)
-        #print("It gets to here")
+
+        #Add the role and its server to the database
         conn = sqlite3.connect("standupbot.db")
         cursor = conn.cursor()
 
@@ -65,13 +67,17 @@ class roles_commands(commands.Cog):
 
         conn.commit()
         conn.close()
-        #print("It also gets to here")
 
+    # This command will delete a given role and its channel
     @commands.command()
-    async def deleteRole(self, ctx, roleName: str):
+    async def delete(self, ctx, roleName: str):
         guild = ctx.guild
+
+        # Find the correct role and channel to delete
         role = discord.utils.get(guild.roles, name = f"{config.GROUP_PREFIX}{roleName}")
         channel = discord.utils.get(guild.text_channels, name = role.name)
+
+        # Check whether or not this user can delete roles
         if ctx.author.top_role <= role:
             title = "Sorry!"
             message = "You do not have permission to delete this role"
@@ -89,9 +95,23 @@ class roles_commands(commands.Cog):
         embed.set_thumbnail(url = "https://seeklogo.com/images/S/san-jose-state-spartans-logo-E3E560A879-seeklogo.com.png")
         await ctx.send(embed = embed)
 
+        # Remove the role from the database
+        conn = sqlite3.connect("standupbot.db")
+        cursor = conn.cursor()
+
+        cursor.execute('''
+        DELETE FROM groups WHERE group_name = ? AND server_id = ?;
+        ''', (role.name, guild.id))
+
+        conn.commit()
+        conn.close()
+
+    # List all the available roles for users to join
     @commands.command()
     async def listRoles(self, ctx):
         guild = ctx.guild
+
+        # Loop through the roles within the server with the group prefix to ensure other roles are not listed
         matching_roles = [role for role in guild.roles if role.name.startswith(config.GROUP_PREFIX)]
         if matching_roles:
             message = "\n".join(role.name[len(config.GROUP_PREFIX):] for role in matching_roles)
@@ -108,10 +128,13 @@ class roles_commands(commands.Cog):
         embed.set_thumbnail(url = "https://seeklogo.com/images/S/san-jose-state-spartans-logo-E3E560A879-seeklogo.com.png")      
         await ctx.send(embed = embed)
 
+    # Allow a user to join a specified role
     @commands.command()
-    async def addUserRole(self, ctx, role_name):
+    async def join(self, ctx, role_name):
         guild = ctx.guild
         role = discord.utils.get(guild.roles, name=f"{config.GROUP_PREFIX}{role_name}")
+
+        # Check if the role exists and if the user is already in the role
         if role is None:
             title = "Sorry!"
             description = f'Role "{role_name}" does not exist.'
@@ -124,6 +147,23 @@ class roles_commands(commands.Cog):
             title = "Success!"
             description = f'Role "{role_name}" has been added to you!'
             await ctx.author.add_roles(role)
+
+            #Add the user id and their role into the database, then add the user id and the user name
+            conn = sqlite3.connect("standupbot.db")
+            cursor = conn.cursor()
+
+            cursor.execute('''
+            INSERT INTO group_members (group_id, user_id)
+            VALUES (?, ?);
+            ''', (role.id, ctx.author.id))
+
+            cursor.execute('''
+            INSERT INTO users (id, username)
+            VALUES (?,?);
+            ''', (ctx.author.id, ctx.author.name))
+
+            conn.commit()
+            conn.close()
 
         embed = discord.Embed(
             color = discord.Color.blurple(),
