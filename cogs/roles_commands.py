@@ -55,16 +55,15 @@ class roles_commands(commands.Cog):
         embed.set_thumbnail(url = "https://seeklogo.com/images/S/san-jose-state-spartans-logo-E3E560A879-seeklogo.com.png")
         await ctx.send(embed = embed)
         await self.createRoleChannel(ctx, guild, role)
-
         #Add the role and its server to the database
         conn = sqlite3.connect("standupbot.db")
         cursor = conn.cursor()
-
+            
         cursor.execute('''
-        INSERT INTO groups (group_name, server_id)
-        VALUES (?, ?);
-        ''', (role.name, role.guild.id))
-
+        INSERT INTO groups (id,group_name, server_id)
+        VALUES (?, ?, ?);
+        ''', (role.id, role.name, role.guild.id))
+        
         conn.commit()
         conn.close()
 

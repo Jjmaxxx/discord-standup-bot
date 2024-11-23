@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 cursor.execute('''
 CREATE TABLE groups (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id TEXT PRIMARY KEY,
     group_name TEXT NOT NULL,
     server_id TEXT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -23,7 +23,7 @@ CREATE TABLE groups (
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS group_members (
     user_id TEXT NOT NULL,
-    group_id INTEGER NOT NULL,
+    group_id TEXT NOT NULL,
     PRIMARY KEY (group_id, user_id),
     FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE
@@ -42,7 +42,7 @@ cursor.execute('''
 CREATE TABLE IF NOT EXISTS responses (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id TEXT NOT NULL,
-    group_id INTEGER NOT NULL,
+    group_id TEXT NOT NULL,
     question_id INTEGER NOT NULL,
     response_text TEXT NOT NULL,
     joined_at DATETIME DEFAULT CURRENT_TIMESTAMP, 
