@@ -9,5 +9,5 @@ intents.messages = True
 intents.message_content = True
 
 
-GROUP_PREFIX= "standup-bot-group-"
+GROUP_PREFIX= "sbg-"
 CATEGORY_NAME = "standup-bot-groups"

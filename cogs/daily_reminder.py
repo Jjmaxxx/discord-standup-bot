@@ -3,11 +3,17 @@ import discord
 import config
 from discord.ext import tasks, commands
 from datetime import datetime, timedelta
+import sqlite3
+
+conn = sqlite3.connect("standupbot.db")
+cursor = conn.cursor()
 
 class daily_reminder(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.daily_announcement.start() 
+        self.daily_checkIn.start() 
+
 
     @tasks.loop(hours = 24)
     async def daily_announcement(self):
@@ -29,16 +35,17 @@ class daily_reminder(commands.Cog):
     @tasks.loop(hours = 24)
     async def daily_checkIn(self):
         #roles = []
-        for guild in self.bot.guilds:
-            print(f"checking role in guild: {guild.name}")
-            roles = [role for role in guild.roles if role.name.startswith(config.GROUP_PREFIX)]
-            if not roles:
-                print(f"No roles found with prefix")
+        cursor.execute("""
+            SELECT * FROM questions;
+        """)
+        rows = cursor.fetchall()
+        for row in rows:
+            print(row)
 
+        for guild in self.bot.guilds:
+            roles = [role for role in guild.roles if role.name.startswith(config.GROUP_PREFIX)]
             for role in roles:
-                print("Found role!")
                 for member in role.members:
-                    print("sending DM")
                     try:
                         await member.send("Hello, This is your daily progress check in: \n" 
                                     "What have you worked in the past 24 hrs?")
@@ -50,7 +57,7 @@ class daily_reminder(commands.Cog):
     async def before_daily_checkIn(self):
         await self.bot.wait_until_ready()
         now = datetime.now()
-        target_time = now.replace(hour=14, minute=49, second=0, microsecond=0)
+        target_time = now.replace(hour=16, minute=10, second=0, microsecond=0)
         if now >= target_time:
             target_time += timedelta(days=1)
         await discord.utils.sleep_until(target_time)
