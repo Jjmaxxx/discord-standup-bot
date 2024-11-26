@@ -3,6 +3,9 @@ import sqlite3
 conn = sqlite3.connect("standupbot.db")
 cursor = conn.cursor()
 
+# Enable foreign key constraints
+conn.execute("PRAGMA foreign_keys = ON")
+
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY,

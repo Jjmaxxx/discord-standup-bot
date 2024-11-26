@@ -5,9 +5,7 @@ import asyncio
 from discord.ext import tasks, commands
 from datetime import datetime, timedelta
 import sqlite3
-
-conn = sqlite3.connect("standupbot.db")
-cursor = conn.cursor()
+from db import execute_query, fetch_all, fetch_one
 
 class daily_reminder(commands.Cog):
     def __init__(self, bot):
@@ -25,13 +23,13 @@ class daily_reminder(commands.Cog):
             channels = [channel for channel in guild.channels if channel.name.startswith(config.GROUP_PREFIX)]
             for channel in channels:
                 print(channel.name)
-                cursor.execute("SELECT id FROM groups WHERE group_name = ?", (channel.name,))
-                group_row = cursor.fetchone()
+                
+                group_row = fetch_one("SELECT id FROM groups WHERE group_name = ?", (channel.name,))
                 if not group_row:
                     print(f"No group_id found for channel {channel.name}")
                     continue
                 group_id = group_row[0]
-                cursor.execute('''
+                responses = fetch_all('''
                     SELECT u.username, q.question_text, response_text 
                     FROM responses r
                     JOIN users u ON u.id = r.user_id
@@ -39,7 +37,6 @@ class daily_reminder(commands.Cog):
                     WHERE group_id = ? AND joined_at BETWEEN ? AND ?
                     ORDER BY u.username, q.question_text;
                 ''', (group_id, start_of_day, end_of_day))
-                responses = cursor.fetchall()
                 print(responses)
                 if not responses:
                     await channel.send("No responses submitted today. Don't forget to participate!")
@@ -63,11 +60,9 @@ class daily_reminder(commands.Cog):
     @tasks.loop(hours = 24)
     async def daily_checkIn(self):
         #roles = []
-        cursor.execute("""
+        questions = fetch_all("""
             SELECT * FROM questions;
         """)
-        questions = cursor.fetchall()
-        
 
         for guild in self.bot.guilds:
             roles = [role for role in guild.roles if role.name.startswith(config.GROUP_PREFIX)]
@@ -86,11 +81,10 @@ class daily_reminder(commands.Cog):
                 def check(message):
                         return message.author == member and isinstance(message.channel, discord.DMChannel)
                 response = await self.bot.wait_for('message', check=check, timeout=3000)
-                cursor.execute('''
+                execute_query('''
                     INSERT INTO responses (user_id, group_id, question_id, response_text)
                     VALUES (?, ?, ?, ?);
                 ''', (member.id, group_id, question_id, response.content))
-                conn.commit()    
             endResponse = "Thank You!"
             await member.send(endResponse)  
         except asyncio.TimeoutError:
