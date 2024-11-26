@@ -52,34 +52,44 @@ class daily_reminder(commands.Cog):
     async def before_daily_announcement(self):
         await self.bot.wait_until_ready()
         now = datetime.now()
-        target_time = now.replace(hour=15, minute=27, second=30, microsecond=0)
+        target_time = now.replace(hour=20, minute=4, second=0, microsecond=0)
         if now >= target_time:
             target_time += timedelta(days=1)
         await discord.utils.sleep_until(target_time)
 
     @tasks.loop(hours = 24)
     async def daily_checkIn(self):
-        #roles = []
+        #roles = [] 
         questions = fetch_all("""
             SELECT * FROM questions;
         """)
+        user_tasks = {}
 
         for guild in self.bot.guilds:
             roles = [role for role in guild.roles if role.name.startswith(config.GROUP_PREFIX)]
             for role in roles:
-                tasks = []
-                
                 for member in role.members:
-                    tasks.append(self.handle_member_questions(member, role.id, questions))
-                    print(role.id)
-                    print(member)
-                await asyncio.gather(*tasks)
-    async def handle_member_questions(self, member,group_id,questions):
+                    if member.id not in user_tasks:
+                        user_tasks[member.id] = []
+                    user_tasks[member.id].append((member, role, questions))
+        tasks = [self.handle_user_groups(user_id, user_groups) for user_id, user_groups in user_tasks.items()]
+        await asyncio.gather(*tasks)
+    
+    async def handle_user_groups(self,user_id, user_groups):
+        #if user is part of multiple groups, send group messages individually
+        for member, group, questions in user_groups:
+            await self.handle_member_questions(member, group, questions)
+    
+    
+    async def handle_member_questions(self, member,group,questions):
         try:
+            group_id = group.id
+            beginResponse = f"Hello! This is your daily checkin for the group: {group.name}."
+            await member.send(beginResponse)
             for question_id, question_text in questions:
                 await member.send(question_text)
                 def check(message):
-                        return message.author == member and isinstance(message.channel, discord.DMChannel)
+                    return message.author == member and isinstance(message.channel, discord.DMChannel)
                 response = await self.bot.wait_for('message', check=check, timeout=3000)
                 execute_query('''
                     INSERT INTO responses (user_id, group_id, question_id, response_text)
@@ -96,7 +106,7 @@ class daily_reminder(commands.Cog):
     async def before_daily_checkIn(self):
         await self.bot.wait_until_ready()
         now = datetime.now()
-        target_time = now.replace(hour=15, minute=26, second=30, microsecond=0)
+        target_time = now.replace(hour=20, minute=2, second=0, microsecond=0)
         if now >= target_time:
             target_time += timedelta(days=1)
         await discord.utils.sleep_until(target_time)
