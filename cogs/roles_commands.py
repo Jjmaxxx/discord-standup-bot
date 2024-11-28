@@ -2,7 +2,10 @@ import discord
 from discord.ext import commands
 import config
 import sqlite3
+import os
+import openai
 from db import execute_query
+
 
 class roles_commands(commands.Cog):
     def __init__(self, bot):
