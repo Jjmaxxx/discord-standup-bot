@@ -15,6 +15,7 @@ class general_commands(commands.Cog):
             .create - Create a new role for a group
             .listRole - List all available roles for a user to join
             .join - Add user to a specified role
+            .leave - Remove a user from a specified role
             .delete - Delete role and its channel
         """
         
