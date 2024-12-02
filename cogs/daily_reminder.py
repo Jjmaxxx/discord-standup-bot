@@ -6,6 +6,7 @@ import openai
 from config import client
 from discord.ext import tasks, commands
 from datetime import datetime, timedelta
+from utils import send_embed
 import sqlite3
 from db import execute_query, fetch_all, fetch_one
 
@@ -40,52 +41,21 @@ class daily_reminder(commands.Cog):
                 ''', (group_id, start_of_day, end_of_day))
                 print(responses)
                 if not responses:
-                    embed = discord.Embed(
-                        color = discord.Color.blurple(),
-                        title = "No Responses Submitted Today",
-                        description = "Don't forget to participate!"
-                    )
-                    embed.set_thumbnail(url = "https://seeklogo.com/images/S/san-jose-state-spartans-logo-E3E560A879-seeklogo.com.png")
-                    await channel.send(embed = embed)
+                    await send_embed(channel, "No Responses Submitted Today","Don't forget to participate!")
                     continue
                 
                 ai_prompt = str(responses)
-
-                # embed = discord.Embed(
-                #     color = discord.Color.blurple(),
-                #     title = "**Standup Summary for Today:**"
-                # )
-
-                # Break down each response to allow for embed compatability
-                # for response in responses:
-                #     username = response[0]
-                #     question_text = response[1]
-                #     response_text = response[2]
-                #     embed.add_field(name = f"{username} : {question_text}", 
-                #                     value = response_text, 
-                #                     inline = False)
-                
-                # embed.set_thumbnail(url = "https://seeklogo.com/images/S/san-jose-state-spartans-logo-E3E560A879-seeklogo.com.png")
-                # await channel.send(embed = embed)
-
-                print("it gets here")
                 
                 completion = client.chat.completions.create(
                     model="gpt-4o-mini",
                     messages = [
-                         {"role": "user", "content": f"Take this data and give suggestions for the group's next steps based on their responses but make it short and also do a short summary of what each group member has done: {ai_prompt}"}
+                        {"role": "user", "content": f"Take this data and give suggestions for the group's next steps based on their responses but make it short and also do a short summary of what each group member has done: {ai_prompt}"}
                     ]
                 )
 
                 message = completion.choices[0].message.content
 
-                embed = discord.Embed(
-                    color = discord.Color.blurple(),
-                    title = "Standup Summary for Today:",
-                    description = message
-                )
-                embed.set_thumbnail(url = "https://seeklogo.com/images/S/san-jose-state-spartans-logo-E3E560A879-seeklogo.com.png")
-                await channel.send(embed = embed)
+                await send_embed(channel,"Standup Summary for Today:",message)
 
     @daily_announcement.before_loop
     async def before_daily_announcement(self):

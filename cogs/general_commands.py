@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 from config import client
+from utils import send_embed
 
 class general_commands(commands.Cog):
     def __init__(self, bot):
@@ -43,6 +44,15 @@ class general_commands(commands.Cog):
         except Exception as e:
             print(f"Error: {e}")
             await ctx.send("An error occurred while processing your request.")
+        title = "Here Are The Available Commands:",
+        description = """
+            .create - Create a new role for a group
+            .listRole - List all available roles for a user to join
+            .join - Add user to a specified role
+            .delete - Delete role and its channel
+        """
+        
+        await send_embed(ctx,title,description)
 
 async def setup(bot):
     await bot.add_cog(general_commands(bot))
