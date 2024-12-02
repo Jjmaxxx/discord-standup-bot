@@ -1,6 +1,7 @@
 import discord
 import asyncio
 import config
+import openai
 import os
 from datetime import datetime, timedelta
 from discord.ext import tasks, commands
