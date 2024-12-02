@@ -5,6 +5,7 @@ import sqlite3
 import os
 import openai
 from db import execute_query
+from utils import send_embed
 
 
 class roles_commands(commands.Cog):
@@ -24,14 +25,7 @@ class roles_commands(commands.Cog):
 
         channelName = role.name
         channel = await guild.create_text_channel(channelName, overwrites = overwrites, category = category)
-
-        embed = discord.Embed(
-            color = discord.Color.blurple(),
-            title = "Success!",
-            description = f'"{role.name}" channel has been created'
-        )
-        embed.set_thumbnail(url = "https://seeklogo.com/images/S/san-jose-state-spartans-logo-E3E560A879-seeklogo.com.png")
-        await ctx.send(embed = embed)
+        await send_embed(ctx,"Success!",f'"{role.name}" channel has been created')
     
     # This command will create a role for users to join
     @commands.command()
@@ -40,24 +34,13 @@ class roles_commands(commands.Cog):
 
         # Run check to see if the role name has already been used
         if discord.utils.get(guild.roles, name = f"{config.GROUP_PREFIX}{roleName}"):
-            embed = discord.Embed(
-                color = discord.Color.blurple(),
-                title = "Sorry!",
-                description = f'The role "{roleName}" has already been created'
-            )
-            embed.set_thumbnail(url = "https://seeklogo.com/images/S/san-jose-state-spartans-logo-E3E560A879-seeklogo.com.png")
-            await ctx.send(embed = embed)
+            await send_embed(ctx,"Sorry!",f'The role "{roleName}" has already been created')
             return
         
         # If the name has not been used, create the role
         role = await guild.create_role(name = f"{config.GROUP_PREFIX}{roleName}")
-        embed = discord.Embed(
-            color = discord.Color.blurple(),
-            title = "Success!",
-            description = f'"{roleName}" has been created.'
-        )
-        embed.set_thumbnail(url = "https://seeklogo.com/images/S/san-jose-state-spartans-logo-E3E560A879-seeklogo.com.png")
-        await ctx.send(embed = embed)
+        await send_embed(ctx,"Success!",f'"{roleName}" has been created.')
+
         await self.createRoleChannel(ctx, guild, role)
         #Add the role and its server to the database  
         execute_query('''
@@ -88,14 +71,7 @@ class roles_commands(commands.Cog):
             await channel.delete()
             await role.delete()
 
-        embed = discord.Embed(
-            color = discord.Color.blurple(),
-            title = title,
-            description = message
-        )
-        embed.set_thumbnail(url = "https://seeklogo.com/images/S/san-jose-state-spartans-logo-E3E560A879-seeklogo.com.png")
-        await ctx.send(embed = embed)
-
+        await send_embed(ctx,title,message)
         # Remove the role from the database
         execute_query('''
             DELETE FROM groups WHERE group_name = ? AND server_id = ?;
@@ -121,14 +97,7 @@ class roles_commands(commands.Cog):
         message = "You have left the group"
         await ctx.author.remove_roles(role)
 
-        embed = discord.Embed(
-            color = discord.Color.blurple(),
-            title = title,
-            description = message
-        )
-        embed.set_thumbnail(url = "https://seeklogo.com/images/S/san-jose-state-spartans-logo-E3E560A879-seeklogo.com.png")
-        await ctx.send(embed = embed)
-
+        await send_embed(ctx,title,message)
         print(role.id,ctx.author.id)
         # Remove the role from the database
         execute_query('''
@@ -148,13 +117,7 @@ class roles_commands(commands.Cog):
             message = "No roles found starting with the specified prefix."
             title = "Sorry!"
 
-        embed = discord.Embed(
-            color = discord.Color.blurple(),
-            title = title,
-            description = message
-        )
-        embed.set_thumbnail(url = "https://seeklogo.com/images/S/san-jose-state-spartans-logo-E3E560A879-seeklogo.com.png")      
-        await ctx.send(embed = embed)
+        await send_embed(ctx,title,message)
 
     # Allow a user to join a specified role
     @commands.command()
@@ -185,13 +148,7 @@ class roles_commands(commands.Cog):
             VALUES (?, ?);
             ''', (role.id, ctx.author.id))
 
-        embed = discord.Embed(
-            color = discord.Color.blurple(),
-            title = title,
-            description = description
-        )
+        await send_embed(ctx,title,description)
 
-        embed.set_thumbnail(url = "https://seeklogo.com/images/S/san-jose-state-spartans-logo-E3E560A879-seeklogo.com.png")
-        await ctx.send(embed = embed)
 async def setup(bot):
     await bot.add_cog(roles_commands(bot))
