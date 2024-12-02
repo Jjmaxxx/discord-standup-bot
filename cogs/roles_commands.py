@@ -39,14 +39,28 @@ class roles_commands(commands.Cog):
         
         # If the name has not been used, create the role
         role = await guild.create_role(name = f"{config.GROUP_PREFIX}{roleName}")
-        await send_embed(ctx,"Success!",f'"{roleName}" has been created.')
-
         await self.createRoleChannel(ctx, guild, role)
+        await ctx.author.add_roles(role)
         #Add the role and its server to the database  
         execute_query('''
             INSERT INTO groups (id,group_name, server_id)
             VALUES (?, ?, ?);
         ''', (role.id, role.name, role.guild.id))
+
+        execute_query('''
+            INSERT OR IGNORE INTO users (id, username)
+            VALUES (?,?);
+        ''', (ctx.author.id, ctx.author.name))
+
+        execute_query('''
+            INSERT INTO group_members (group_id, user_id)
+            VALUES (?, ?);
+        ''', (role.id, ctx.author.id))
+
+        execute_query('''
+            INSERT INTO team_leaders (group_id, user_id)
+            VALUES (?, ?);
+        ''', (role.id, ctx.author.id))
 
     # This command will delete a given role and its channel
     @commands.command()
