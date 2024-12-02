@@ -15,6 +15,7 @@ class general_commands(commands.Cog):
             description = ".create - Create a new role for a group \n"
                         ".listRole - List all available roles for a user to join \n"
                         ".join - Add user to a specified role \n"
+                        ".leave - Remove a user from a specified role \n"
                         ".delete - Delete role and its channel \n"
         )
         embed.set_thumbnail(url = "https://seeklogo.com/images/S/san-jose-state-spartans-logo-E3E560A879-seeklogo.com.png")

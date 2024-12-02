@@ -108,18 +108,19 @@ class roles_commands(commands.Cog):
         # Find the correct role and channel to delete
         role = discord.utils.get(guild.roles, name = f"{config.GROUP_PREFIX}{roleName}")
         if role is None:
+            title = "Sorry!"
             message = "Role not found!"
-            await ctx.send(message)
-            return
-        
-        if role not in ctx.author.roles:
+            #await ctx.send(message)
+            #return
+        elif role not in ctx.author.roles:
+            title = "Sorry!"
             message = f"You do not have the role '{roleName}' to leave the group."
-            await ctx.send(message)
-            return
-    
-        title = "Success!"
-        message = "You have left the group"
-        await ctx.author.remove_roles(role)
+            #await ctx.send(message)
+            #return
+        else:
+            title = "Success!"
+            message = "You have left the group"
+            await ctx.author.remove_roles(role)
 
         embed = discord.Embed(
             color = discord.Color.blurple(),
@@ -134,6 +135,7 @@ class roles_commands(commands.Cog):
         execute_query('''
             DELETE FROM group_members WHERE group_id = ? AND user_id = ?;
         ''', (role.id, ctx.author.id))
+
     # List all the available roles for users to join
     @commands.command()
     async def listRoles(self, ctx):
@@ -168,7 +170,7 @@ class roles_commands(commands.Cog):
             description = f'Role "{role_name}" does not exist.'
 
         elif role in ctx.author.roles:
-            title = "Sorry!",
+            title = "Sorry!"
             description = f'You already have the role "{role_name}".'
 
         else:
