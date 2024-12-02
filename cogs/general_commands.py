@@ -10,7 +10,7 @@ class general_commands(commands.Cog):
     # List all available commands for users to use
     @commands.command()
     async def help(self, ctx):
-        title = "Here Are The Available Commands:",
+        title = "Here Are The Available Commands:"
         description = """
             .create - Create a new role for a group
             .listRole - List all available roles for a user to join

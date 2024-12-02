@@ -33,6 +33,26 @@ CREATE TABLE IF NOT EXISTS group_members (
 )
 ''')
 
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS team_leaders (
+    group_id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+)
+''')
+
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS tasks (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    group_id TEXT NOT NULL, 
+    task_name TEXT NOT NULL,
+    task_description TEXT,
+    is_completed BOOLEAN DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE
+)
+''')
 
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS questions (
