@@ -39,6 +39,7 @@ class roles_commands(commands.Cog):
         
         # If the name has not been used, create the role
         role = await guild.create_role(name = f"{config.GROUP_PREFIX}{roleName}")
+        await send_embed(ctx,"Success!",f'"{role.name}" group has been created')
         await self.createRoleChannel(ctx, guild, role)
         await ctx.author.add_roles(role)
         #Add the role and its server to the database  
