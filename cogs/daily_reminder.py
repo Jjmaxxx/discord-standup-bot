@@ -1,4 +1,3 @@
-
 import discord
 import config
 import asyncio
@@ -55,9 +54,7 @@ class daily_reminder(commands.Cog):
                 completion = client.chat.completions.create(
                     model="gpt-4o-mini",
                     messages = [
-                        {"role": "user", "content": f"Take this data and give suggestions for the group's next steps 
-                         based on their responses but make it short and do a short summary of what each group 
-                         member has done: {ai_prompt}"}
+                        {"role": "user", "content": f"Take this data and give suggestions for the group's next steps based on their responses but make it short and do a short summary of what each group member has done: {ai_prompt}"}
                     ]
                 )
 
