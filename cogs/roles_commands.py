@@ -1,9 +1,6 @@
 import discord
 from discord.ext import commands
 import config
-import sqlite3
-import os
-import openai
 from db import execute_query
 from utils import send_embed
 

@@ -1,4 +1,3 @@
-import discord
 from discord.ext import commands
 from config import client
 from utils import send_embed

@@ -1,11 +1,11 @@
 import sqlite3
-import time
 
 def get_db_connection():
     conn = sqlite3.connect('standupbot.db')
     conn.execute("PRAGMA foreign_keys = ON")
     return conn
 
+# Function to Insert/Update/Delete
 def execute_query(query, params=None):
     if params is None:
         params = ()
@@ -19,6 +19,7 @@ def execute_query(query, params=None):
     finally:
         conn.close()
 
+# Function to fetch one record from the database
 def fetch_one(query, params=None):
     if params is None:
         params = ()
@@ -33,7 +34,7 @@ def fetch_one(query, params=None):
     finally:
         conn.close()
 
-# Function to fetch multiple records from the database (SELECT)
+# Function to fetch multiple records from the database
 def fetch_all(query, params=None):
     if params is None:
         params = ()

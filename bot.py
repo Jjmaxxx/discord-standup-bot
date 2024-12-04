@@ -1,10 +1,8 @@
 import discord
 import asyncio
 import config
-import openai
 import os
-from datetime import datetime, timedelta
-from discord.ext import tasks, commands
+from discord.ext import commands
 from cogwatch import Watcher
 
 # Set up the bot with a command prefix

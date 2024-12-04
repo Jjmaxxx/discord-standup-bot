@@ -2,12 +2,10 @@
 import discord
 import config
 import asyncio
-import openai
 from config import client
 from discord.ext import tasks, commands
 from datetime import datetime, timedelta
 from utils import send_embed
-import sqlite3
 from db import execute_query, fetch_all, fetch_one
 
 class daily_reminder(commands.Cog):
@@ -55,9 +53,7 @@ class daily_reminder(commands.Cog):
                 completion = client.chat.completions.create(
                     model="gpt-4o-mini",
                     messages = [
-                        {"role": "user", "content": f"Take this data and give suggestions for the group's next steps 
-                         based on their responses but make it short and do a short summary of what each group 
-                         member has done: {ai_prompt}"}
+                        {"role": "user", "content": f"Take this data and give suggestions for the group's next steps based on their responses but make it short and do a short summary of what each group member has done: {ai_prompt}"}
                     ]
                 )
 
@@ -92,12 +88,13 @@ class daily_reminder(commands.Cog):
                 for member in role.members:
                     if member.id not in user_tasks:
                         user_tasks[member.id] = []
+                    #Map member to user_tasks. (Important if member is part of multiple groups)
                     user_tasks[member.id].append((member, role, questions))
         tasks = [self.handle_user_groups(user_id, user_groups) for user_id, user_groups in user_tasks.items()]
         await asyncio.gather(*tasks)
     
     async def handle_user_groups(self,user_id, user_groups):
-        #if user is part of multiple groups, send group messages individually
+        #if user is part of multiple groups, finish first standup meeting questions before next one
         for member, group, questions in user_groups:
             await self.handle_member_questions(member, group, questions)
     
