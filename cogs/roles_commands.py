@@ -147,6 +147,7 @@ class roles_commands(commands.Cog):
             title = "Sorry!"
             description = f'Role "{role_name}" does not exist.'
 
+        # Check if the role is already applied to the user
         elif role in ctx.author.roles:
             title = "Sorry!"
             description = f'You already have the role "{role_name}".'

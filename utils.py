@@ -1,6 +1,6 @@
 import discord
 
-
+#Function to simplify embed creation process
 async def send_embed(channel,title,description, color=discord.Color.blurple()):
     embed = discord.Embed(
         color = color,
