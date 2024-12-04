@@ -65,7 +65,7 @@ class daily_reminder(commands.Cog):
     async def before_daily_announcement(self):
         await self.bot.wait_until_ready()
         now = datetime.now()
-        target_time = now.replace(hour=14, minute=50, second=0, microsecond=0)
+        target_time = now.replace(hour=19, minute=25, second=0, microsecond=0)
         if now >= target_time:
             target_time += timedelta(days=1)
         await discord.utils.sleep_until(target_time)
@@ -125,7 +125,7 @@ class daily_reminder(commands.Cog):
     async def before_daily_checkIn(self):
         await self.bot.wait_until_ready()
         now = datetime.now()
-        target_time = now.replace(hour=14, minute=46, second=0, microsecond=0)
+        target_time = now.replace(hour=19, minute=23, second=0, microsecond=0)
         if now >= target_time:
             target_time += timedelta(days=1)
         await discord.utils.sleep_until(target_time)
